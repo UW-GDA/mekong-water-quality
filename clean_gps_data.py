@@ -1,19 +1,21 @@
 # %%
 import geopandas as gpd
+import os
+import pandas as pd
 # %%
 # GPS points for 3S sampling
 nov3s = gpd.read_file('data/3S_GPS/Waypoints_21-NOV-23.gpx')
 # Filter out mistakes (unnamed)
 nov3s = nov3s[nov3s['name'].str.match("[^0]")]
 # Save as geojson
-nov3s.to_file('data/nov_3s.geojson', driver = 'GeoJSON')
+#nov3s.to_file('data/nov_3s.geojson', driver = 'GeoJSON')
 
 # %%
 # Look at other files (there are 25 total)
-import os
 gdf = nov3s
 for filename in os.listdir('data/3S_GPS'):
-    gdf = gdf.append(gpd.read_file(f'data/3S_GPS/{filename}'))
+    gdf = pd.concat([gdf, gpd.read_file(f'data/3S_GPS/{filename}')])
+gdf['time_string'] = [t.strftime('%Y-%m') for t in gdf['time']]
 
 # %%
 # Names look pretty clean for the most part.
@@ -27,7 +29,6 @@ rivers = gpd.read_file('data/gmsriversadb/gms_river.shp')
 import contextily
 import matplotlib.pyplot as plt
 fig, ax = plt.subplots()
-gdf['time_string'] = [t.strftime('%Y-%m') for t in gdf['time']]
 gdf.plot(ax = ax, column='time_string', legend=True)
 rivers[rivers['Strahler'] > 3].plot(ax = ax, alpha=0.5, linewidth=2)
 ax.set_ylim(10, 20)
@@ -86,27 +87,18 @@ items = search.item_collection() # pystac.ItemCollection
 # visualize sentinel https://custom-scripts.sentinel-hub.com/custom-scripts/sentinel-2/l2a_optimized/
 import odc.stac
 data = odc.stac.stac_load(
-    [items[0]], 
+    items, 
     bands=['B04', 'B03', 'B02','visual'], 
     bbox=[xmin, ymin, xmax, ymax],
 ).isel(time=0)
-fig, ax = plt.subplots()
-#d = data[['B04', 'B03', 'B02']].to_array()
-ax.axis('off')
-data[['B04', 'B03', 'B02']].to_array().plot.imshow(robust=True, ax=ax)
-# ax.set_title("Locations of oxygen sensors\n(Sentinel 2B, Nov 21, 2023)")
-# dots = minidots[minidots.name.str.match(".*1")]
-# dots = dots[[not n for n in dots.name.str.match("SSN")]].to_crs("EPSG:32648")
-# dots.plot(ax=ax, color = "#e1cbf4", markersize=150, edgecolor="black")
 
 # %%
 fig, ax = plt.subplots(figsize=(15, 15))
-gdf.plot(ax = ax, color = "blue")
-rivers[rivers['Strahler'] > 3].plot(ax = ax, alpha=0.5, linewidth=2)
-for x, y, label in zip(gdf.geometry.x, gdf.geometry.y, gdf.name):
-    ax.annotate(label, xy=(x, y), xytext=(3,-3), textcoords='offset points')
-ax.set_ylim(ymin, ymax)
-ax.set_xlim(xmin, xmax)
-contextily.add_basemap(ax, 
-                       crs=gdf.crs.to_string(), 
-                       source=contextily.providers.Esri.WorldImagery)
+#d = data[['B04', 'B03', 'B02']].to_array()
+ax.axis('off')
+data[['B04', 'B03', 'B02']].to_array().plot.imshow(robust=True, ax=ax, alpha = 0.9)
+points = gdf[gdf['time_string'] == "2022-06"].to_crs('EPSG:32648')
+points.plot(ax = ax, color = "black", facecolor = "pink")
+for x, y, label in zip(points.geometry.x, points.geometry.y, points.name):
+    ax.annotate(label, xy=(x, y), xytext=(3,-3), textcoords='offset points', color = "white")
+ax.set_title("Sentinel-2 June 24, 2022")
