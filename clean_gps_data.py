@@ -2,6 +2,7 @@
 import geopandas as gpd
 import os
 import pandas as pd
+import matplotlib.pyplot as plt
 # %%
 # GPS points for 3S sampling
 nov3s = gpd.read_file('data/3S_GPS/Waypoints_21-NOV-23.gpx')
@@ -27,7 +28,6 @@ rivers = gpd.read_file('data/gmsriversadb/gms_river.shp')
 
 # %%
 import contextily
-import matplotlib.pyplot as plt
 fig, ax = plt.subplots()
 gdf.plot(ax = ax, column='time_string', legend=True)
 rivers[rivers['Strahler'] > 3].plot(ax = ax, alpha=0.5, linewidth=2)
@@ -102,3 +102,4 @@ points.plot(ax = ax, color = "black", facecolor = "pink")
 for x, y, label in zip(points.geometry.x, points.geometry.y, points.name):
     ax.annotate(label, xy=(x, y), xytext=(3,-3), textcoords='offset points', color = "white")
 ax.set_title("Sentinel-2 June 24, 2022")
+plt.savefig('reservoir_locations.png', bbox_inches='tight')
