@@ -1,5 +1,4 @@
 # %%
-
 import pystac_client
 import planetary_computer
 #import odc.stac

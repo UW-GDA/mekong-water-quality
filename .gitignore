@@ -1,3 +1,6 @@
+# Save large datasets here which won't be pushed
+data/external/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
