@@ -8,6 +8,7 @@
 # %%
 import geopandas as gpd
 import matplotlib.pyplot as plt
+import contextily
 
 # %%
 # Load sampling data
@@ -18,7 +19,7 @@ gdf = gpd.read_file('data/mekong_sampling_locations.geojson')
 
 # Try to pull some sentinel data for this place/time
 # June 24, 2022
-import helpers
+import extras.helpers as helpers
 catalog = helpers.get_catalog()
 (xmin, ymin, xmax, ymax)= [106.1, 13.4, 106.7, 13.7]
 search = catalog.search(
@@ -49,3 +50,42 @@ for x, y, label in zip(points.geometry.x, points.geometry.y, points.name):
     ax.annotate(label, xy=(x, y), xytext=(3,-3), textcoords='offset points', color = "white")
 ax.set_title("Sentinel-2 June 24, 2022")
 plt.savefig('reservoir_locations.png', bbox_inches='tight')
+
+
+
+
+
+##### Locations/context plot #####
+# -------------------------------#
+# %%
+# Load mekong watershed
+lmb = gpd.read_file('data/lmb.geojson')
+# load asia countries file
+countries = gpd.read_file('data/external/asia_polygons.gpkg')
+# load rivers file (large rivers)
+rivers = gpd.read_file('data/external/HydroRIVERS_v10_as_shp', 
+                       mask = lmb,
+                       where='ORD_FLOW < 5')
+tsl = gpd.read_file('data/tonle_sap_lake.geojson')
+# %%
+
+# %%
+# convert everything to utm zone 48 N
+fig, ax = plt.subplots(figsize=(6, 12))
+bounds = rivers.to_crs('EPSG:32648').unary_union.bounds
+ax.set_xlim(bounds[0]-100000, bounds[2]+100000)
+ax.set_ylim(bounds[1]-100000, bounds[3]+100000)
+ax.axis('off')
+rivers.to_crs('EPSG:32648').plot(ax=ax, color = "#01099e")
+lmb.to_crs('EPSG:32648').plot(ax=ax, facecolor = '#6e9ecc66', edgecolor='#6e9ecc')
+tsl.to_crs('EPSG:32648').plot(ax=ax, color = "#01099e")
+countries.to_crs('EPSG:32648').plot(ax=ax, facecolor='none', edgecolor='k', linewidth=0.5)
+# add basemap
+contextily.add_basemap(ax, 
+                       crs='EPSG:32648', 
+                       source=contextily.providers.Esri.WorldImagery,
+                       alpha=0.8)
+plt.savefig('extras/overview_map.png', bbox_inches='tight')
+
+# %%
+
