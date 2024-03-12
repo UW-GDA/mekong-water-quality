@@ -9,6 +9,10 @@ Future work on this project will be in my [personal repo](https://github.com/hel
 ## Background
 
 The Mekong River is one of the world's largest rivers, and the Lower Mekong Basin (LMB) feeds an estimated 60 million people daily. Its biodiversity and productivity is driven by seasonal fluctuations in flow driven by the monsoonal climate, known as the flood-pulse. The processes driving productivity are likely changing with the onset of widespread deforestation and hydropower dam development in the last two decades ([MRC, 2023](https://www.mrcmekong.org/resource/bd0zhw)). Remote sensing methods exist for some key indicators of water quality, including chlorophyll (an indicator for phytoplankton abundance) and turbidity. Using the Harmonized Landsat Sentinel dataset, this project will track chlorophyll and turbidity over the last decade in all large mainstem and tributary river reaches in the Lower Mekong Basin. 
+ 
+
+![](overview.png)
+*Map of LMB, indicating analysis location. Satellite images show how the color of the river changes from wet season to dry season, and how it may be changing over time. My analysis will link color to water quality and generate a tiem series.*
 
 ## Questions  
 * How does chlorophyll and turbidity vary across the flood-pulse in the LMB? 
